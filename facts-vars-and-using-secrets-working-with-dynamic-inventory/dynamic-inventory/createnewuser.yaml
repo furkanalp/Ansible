@@ -1,0 +1,10 @@
+- name: create a user
+  hosts: tag_Name_node_1_clarusway
+  become: true
+  vars_files:
+    - secret.yaml
+  tasks:
+    - name: create user
+      user:
+        name: "{{ username }}"
+        password: "{{ password }}"  
