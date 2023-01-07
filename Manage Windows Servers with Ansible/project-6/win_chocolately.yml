@@ -1,0 +1,16 @@
+- name: win_chocolatey module example
+  hosts: windows_servers
+  gather_facts: false
+  vars:
+    - packages:
+      - git
+      - sublimetext4
+      - notepadplusplus
+      - googlechrome
+      - docker-desktop
+  tasks:
+    - name: install packages
+      win_chocolatey:
+        name: "{{ packages }}"
+        state: present
+ 

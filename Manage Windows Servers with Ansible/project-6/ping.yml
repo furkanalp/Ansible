@@ -1,0 +1,11 @@
+- name: ping
+  hosts: windows_servers
+  tasks:
+    - name: Check the connectivity for windows servers
+      win_ping:
+
+- name: ping
+  hosts: linux_servers
+  tasks:
+    - name: Check the connectivity for linux servers
+      ping:      
