@@ -8,7 +8,7 @@
 * IDE (IntelliJ, VSCode, etc)
 * GitHub account, git
 
-![](/Project-9.png)
+![](Project-9.png)
 
 ### Step-1: Ansible Setup for AWS
 
