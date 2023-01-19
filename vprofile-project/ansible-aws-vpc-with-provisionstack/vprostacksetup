@@ -1,0 +1,8 @@
+nginx_ami: ami-061dbd1209944525c
+tomcat_ami: ami-061dbd1209944525c
+memcache_ami: ami-061dbd1209944525c
+rmq_ami: ami-061dbd1209944525c
+mysql_ami: ami-061dbd1209944525c
+# BEGIN ANSIBLE MANAGED BLOCK
+BastionSGid: sg-03fd0e71f22a3457b 
+# END ANSIBLE MANAGED BLOCK

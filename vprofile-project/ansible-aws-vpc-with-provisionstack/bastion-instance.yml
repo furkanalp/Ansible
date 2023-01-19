@@ -1,0 +1,68 @@
+---
+- name: Create a VPC and Subnets
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars_files:
+    - bastion_setup
+    - output_vars
+  tasks:
+    - name: Create EC2 key pair
+      ec2_key:
+        name: vprofile-key
+        region: "{{ region }}"
+        state: present
+      register: key_out
+
+    - name: Copy key pair file to bastion host
+      copy:
+        content: "{{ key_out.key.private_key }}"
+        dest: "./vprofile-key.pem"
+        mode: 0600
+      when: key_out.changed
+
+    - name: Create security group for bastion host
+      ec2_group:
+        name: Bastion-host-sg
+        description: Security group for bastion host, allow port 22 from everywhere.
+        region: "{{ region }}"
+        vpc_id: "{{ vpcid }}"
+        rules:
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: "{{ MYIP }}"
+        state: present
+      register: BastionSG_out
+
+    - name: Create EC2 instance
+      ec2:
+        key_name: vprofile-key
+        instance_type: t2.micro
+        image: "{{ bastion_ami }}"
+        group_id: "{{ BastionSG_out.group_id }}"
+        region: "{{ region }}"
+        vpc_subnet_id: "{{ pub_subnet_1_id }}"
+        wait: yes
+        wait_timeout: 300
+        instance_tags:
+          Name: "Bastion_host"
+          Project: Vprofile
+          Owner: DevOps Team
+        count_tag: # if it is already exist, it is not going to create the instance.
+          Name: "Bastion_host"
+          Project: Vprofile
+          Owner: DevOps Team 
+        exact_count: 1
+      register: bastionHost_out
+
+    - name: Insert/Update "BastionSGid" in vprostacksetup
+      blockinfile:
+        path: ./vprostacksetup
+        backup: yes
+        block: |
+          BastionSGid: {{ BastionSG_out.group_id }} 
+
+  
+   
+  
