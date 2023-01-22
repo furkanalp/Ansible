@@ -1,0 +1,56 @@
+---
+- name: Setup Nginx svc
+  hosts: websrvgrp
+  gather_facts: no
+  tasks:
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+        cache_valid_time: 86400
+      tags:
+        - package
+
+    - name: Start & ENable Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+      tags:
+        - svc
+
+
+    - name: Disable Nginx default website
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      tags:
+        - conf
+
+
+    - name: Deploy web config file
+      template:
+        src: templates/nginxvpro.j2
+        dest: /etc/nginx/sites-available/vproapp
+      tags:
+        - conf
+# In Nginx, the default configuration is to include all files in the "/etc/nginx/sites-enabled" directory in the server block, and any files in the "/etc/nginx/sites-available" directory are ignored. By creating a symbolic link from the file in the "sites-available" directory to the "sites-enabled" directory, the file is effectively included in the server block and the website is made available.
+
+# This is a common practice in Linux systems, where the "sites-available" directory is used to store all available configurations and the "sites-enabled" directory is used to store only the configurations that are currently in use. This allows easy management of multiple configurations without having to edit the main configuration file every time.
+
+    - name: Enable vproapp website
+      file:
+        src: /etc/nginx/sites-available/vproapp
+        dest: /etc/nginx/sites-enabled/vproapp
+        state: link
+      notify:
+        - Restart Nginx
+      tags:
+        - conf
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
